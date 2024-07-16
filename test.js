@@ -1,6 +1,6 @@
 const {google} = require('googleapis');
 
-const serviceAccountKeyFile = "path_to_credentials.json";
+const serviceAccountKeyFile = "./path_to_credentials.json";
 const sheetId = '1ShrN0XuOzU29HV-zaRcrPcIxdfrnSsSccCr1nnHIvuw'
 const tabName = 'data1'
 const range = 'A:E'
