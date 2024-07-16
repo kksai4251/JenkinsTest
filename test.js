@@ -1,51 +1,52 @@
-const { google } = require('googleapis');
-const fs = require('fs');
-const path = require('path');
+const {google} = require('googleapis');
 
-const serviceAccountKeyFile = "./path_to_credentials.json";
-const sheetId = '1ShrN0XuOzU29HV-zaRcrPcIxdfrnSsSccCr1nnHIvuw';
-const tabName = 'data1';
-const range = 'A:E';
+const serviceAccountKeyFile = "./arcane-force-342206-e7736d717b0b.json";
+const sheetId = '1ShrN0XuOzU29HV-zaRcrPcIxdfrnSsSccCr1nnHIvuw'
+const tabName = 'data1'
+const range = 'A:E'
 
 main().then(() => {
-  console.log('Completed');
-}).catch(err => {
-  console.error('Error:', err);
-});
+  console.log('Completed')
+})
 
 async function main() {
-  // Generate google sheet client
-  const googleSheetClient = await getGoogleSheetClient();
+  // Generating google sheet client
+  const googleSheetClient = await _getGoogleSheetClient();
 
-  // Simulate parsing JSON response (replace with your actual JSON parsing logic)
-  const jsonResponse = [
-    { id: '11', username: 'rohith', firstName: 'Rohith', lastName: 'Sharma', status: 'Active' },
-    { id: '12', username: 'virat', firstName: 'Virat', lastName: 'Kohli', status: 'Active' }
-  ];
+  // Reading Google Sheet from a specific range
+  const data = await _readGoogleSheet(googleSheetClient, sheetId, tabName, range);
+  console.log(data);
 
-  // Prepare data to be inserted into Google Sheet
-  const dataToBeInserted = jsonResponse.map(item => [
-    item.id,
-    item.username,
-    item.firstName,
-    item.lastName,
-    item.status
-  ]);
-
-  // Write data to Google Sheet
-  await writeGoogleSheet(googleSheetClient, sheetId, tabName, range, dataToBeInserted);
+  // Adding a new row to Google Sheet
+  const dataToBeInserted = [
+     ['11', 'rohith', 'Rohith', 'Sharma', 'Active'],
+     ['12', 'virat', 'Virat', 'Kohli', 'Active']
+  ]
+  await _writeGoogleSheet(googleSheetClient, sheetId, tabName, range, dataToBeInserted);
 }
 
-async function getGoogleSheetClient() {
+async function _getGoogleSheetClient() {
   const auth = new google.auth.GoogleAuth({
     keyFile: serviceAccountKeyFile,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
   const authClient = await auth.getClient();
-  return google.sheets({ version: 'v4', auth: authClient });
+  return google.sheets({
+    version: 'v4',
+    auth: authClient,
+  });
 }
 
-async function writeGoogleSheet(googleSheetClient, sheetId, tabName, range, data) {
+async function _readGoogleSheet(googleSheetClient, sheetId, tabName, range) {
+  const res = await googleSheetClient.spreadsheets.values.get({
+    spreadsheetId: sheetId,
+    range: `${tabName}!${range}`,
+  });
+
+  return res.data.values;
+}
+
+async function _writeGoogleSheet(googleSheetClient, sheetId, tabName, range, data) {
   await googleSheetClient.spreadsheets.values.append({
     spreadsheetId: sheetId,
     range: `${tabName}!${range}`,
@@ -55,5 +56,4 @@ async function writeGoogleSheet(googleSheetClient, sheetId, tabName, range, data
       "majorDimension": "ROWS",
       "values": data
     },
-  });
-}
+  })
