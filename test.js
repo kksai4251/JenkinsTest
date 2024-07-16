@@ -2,9 +2,9 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
-const serviceAccountKeyFile = "./arcane-force-342206-e7736d717b0b.json";
-const sheetId = '1zO4C2wUAZsD232YQ8D12P02wa4lOpyTBgf77f6RDe9g';
-const tabName = 'Users';
+const serviceAccountKeyFile = "./path_to_credentials.json";
+const sheetId = '1ShrN0XuOzU29HV-zaRcrPcIxdfrnSsSccCr1nnHIvuw';
+const tabName = 'data1';
 const range = 'A:E';
 
 main().then(() => {
