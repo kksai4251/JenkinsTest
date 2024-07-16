@@ -1,6 +1,6 @@
 const {google} = require('googleapis');
 
-const serviceAccountKeyFile = "./arcane-force-342206-e7736d717b0b.json";
+const serviceAccountKeyFile = "path_to_credentials.json";
 const sheetId = '1ShrN0XuOzU29HV-zaRcrPcIxdfrnSsSccCr1nnHIvuw'
 const tabName = 'data1'
 const range = 'A:E'
