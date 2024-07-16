@@ -1,59 +1,59 @@
+const fs = require('fs');
 const {google} = require('googleapis');
 
-const serviceAccountKeyFile = "./path_to_credentials.json";
-const sheetId = '1ShrN0XuOzU29HV-zaRcrPcIxdfrnSsSccCr1nnHIvuw'
-const tabName = 'data1'
-const range = 'A:E'
+// Path to your service account key file
+const SERVICE_ACCOUNT_FILE = 'path_to_credentials.json';
 
-main().then(() => {
-  console.log('Completed')
-})
+// The ID and range of your spreadsheet
+const SPREADSHEET_ID = '1ShrN0XuOzU29HV-zaRcrPcIxdfrnSsSccCr1nnHIvuw'; // Replace with your Spreadsheet ID
+const RANGE = 'data1!A1:D5'; // Replace with the range where you want to insert data
 
-async function main() {
-  // Generating google sheet client
-  const googleSheetClient = await _getGoogleSheetClient();
+// Load the service account key file
+const credentials = JSON.parse(fs.readFileSync(SERVICE_ACCOUNT_FILE));
 
-  // Reading Google Sheet from a specific range
-  const data = await _readGoogleSheet(googleSheetClient, sheetId, tabName, range);
-  console.log(data);
+// Configure a JWT auth client
+const auth = new google.auth.JWT(
+  credentials.client_email,
+  null,
+  credentials.private_key,
+  ['https://www.googleapis.com/auth/spreadsheets']
+);
 
-  // Adding a new row to Google Sheet
-  const dataToBeInserted = [
-     ['11', 'rohith', 'Rohith', 'Sharma', 'Active'],
-     ['12', 'virat', 'Virat', 'Kohli', 'Active']
-  ]
-  await _writeGoogleSheet(googleSheetClient, sheetId, tabName, range, dataToBeInserted);
-}
+// Authenticate request
+auth.authorize((err, tokens) => {
+  if (err) {
+    console.log(err);
+    return;
+  }
+  console.log('Successfully connected!');
+  insertData(auth);
+});
 
-async function _getGoogleSheetClient() {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: serviceAccountKeyFile,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+function insertData(auth) {
+  const sheets = google.sheets({version: 'v4', auth});
+
+  const values = [
+    ['Name', 'Age', 'Gender', 'Location'],
+    ['John Doe', 28, 'Male', 'New York'],
+    ['Jane Doe', 26, 'Female', 'San Francisco'],
+    ['Sam Smith', 30, 'Male', 'Chicago'],
+    ['Lisa Ray', 29, 'Female', 'Boston'],
+  ];
+
+  const resource = {
+    values,
+  };
+
+  sheets.spreadsheets.values.update({
+    spreadsheetId: SPREADSHEET_ID,
+    range: RANGE,
+    valueInputOption: 'RAW',
+    resource,
+  }, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(`${result.data.updatedCells} cells updated.`);
+    }
   });
-  const authClient = await auth.getClient();
-  return google.sheets({
-    version: 'v4',
-    auth: authClient,
-  });
 }
-
-async function _readGoogleSheet(googleSheetClient, sheetId, tabName, range) {
-  const res = await googleSheetClient.spreadsheets.values.get({
-    spreadsheetId: sheetId,
-    range: `${tabName}!${range}`,
-  });
-
-  return res.data.values;
-}
-
-async function _writeGoogleSheet(googleSheetClient, sheetId, tabName, range, data) {
-  await googleSheetClient.spreadsheets.values.append({
-    spreadsheetId: sheetId,
-    range: `${tabName}!${range}`,
-    valueInputOption: 'USER_ENTERED',
-    insertDataOption: 'INSERT_ROWS',
-    resource: {
-      "majorDimension": "ROWS",
-      "values": data
-    },
-  })
