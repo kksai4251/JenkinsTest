@@ -1,0 +1,89 @@
+{
+	"info": {
+		"_postman_id": "e67acf07-f137-4c8f-ab1f-2b8115b7a9cc",
+		"name": "Sample",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33710932"
+	},
+	"item": [
+		{
+			"name": "New Request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Extract the id from the response\r",
+							"const responseJson = pm.response.json();\r",
+							"const id = responseJson.id;\r",
+							"\r",
+							"// Check if the id is an even number\r",
+							"if (id % 2 === 0) {\r",
+							"    // Send an alert to Slack\r",
+							"    const webhookUrl = 'https://hooks.slack.com/services/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';\r",
+							"    const message = {\r",
+							"        text: `Alert: Even ID detected! ID: ${id}`,\r",
+							"        username: 'Postman Bot',\r",
+							"        icon_emoji: ':warning:'\r",
+							"    };\r",
+							"\r",
+							"    pm.sendRequest({\r",
+							"        url: webhookUrl,\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'Content-Type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(message)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        if (err) {\r",
+							"            console.log(err);\r",
+							"        } else {\r",
+							"            console.log(res);\r",
+							"        }\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"morpheus\",\r\n    \"job\": \"leader\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://reqres.in/api/users",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": ""
+		}
+	]
+}
