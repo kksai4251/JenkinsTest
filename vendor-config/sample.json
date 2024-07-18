@@ -125,7 +125,7 @@
 							"    console.log(`Total exceeds 160 M: ${total}`);\r",
 							"    // Send an alert to Slack\r",
 							"\r",
-							"    const webhookUrl = pm.collectionVariables.get(\"slack_webhook_url\");\r",
+							"    const webhookUrl = pm.environment.get(\"slack_webhook_url\");\r",
 							"    const startDate = formatDate(pm.collectionVariables.get(\"startDate\"));\r",
 							"    const reportLink = \"https://experience.adobe.com/#/@ancestry-com/so:ancest1/analytics/spa/#/apps/admin/servercallusage\"\r",
 							"\r",
