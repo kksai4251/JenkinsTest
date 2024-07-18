@@ -1,0 +1,27 @@
+{
+	"id": "413f9ff9-8e2f-4ba6-ad65-c9f58ce542ce",
+	"name": "Adobe Parameters",
+	"values": [
+		{
+			"key": "client_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "client_secret",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "company_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-07-18T13:53:01.250Z",
+	"_postman_exported_using": "Postman/11.4.0-240705-0657"
+}
