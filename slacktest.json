@@ -65,7 +65,6 @@
 							"    console.log(`Sending request to Slack webhook: ${webhookUrl}`);\r",
 							"    pm.sendRequest({\r",
 							"        url: webhookUrl,\r",
-							"        channel: \"#analysis\",\r",
 							"        method: 'POST',\r",
 							"        header: {\r",
 							"            'Content-Type': 'application/json'\r",
