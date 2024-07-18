@@ -32,7 +32,7 @@
 							"        attachments: [\r",
 							"            {\r",
 							"                mrkdwn_in: [\"text\"],\r",
-							"                color: \"#ff0000\",\r",
+							"                color: \"warning\",\r",
 							"                pretext: \"Server Call Usage Alert\",\r",
 							"                author_name: \"Postman Bot\",\r",
 							"                author_link: \"https://www.postman.com/\",\r",
