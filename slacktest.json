@@ -23,7 +23,7 @@
 							"    console.log(`Total[4] exceeds 160,000,000: ${total}`);\r",
 							"    // Send an alert to Slack\r",
 							"\r",
-							"    const webhookUrl = pm.collectionVariables.get(\"slack_webhook_url\");\r",
+							"    const webhookUrl = pm.environment.get(\"slack_webhook_url\");\r",
 							"    const startDate = pm.collectionVariables.get(\"startDate\");\r",
 							"    const endDate = pm.collectionVariables.get(\"endDate\");\r",
 							"\r",
