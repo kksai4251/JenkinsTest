@@ -28,7 +28,7 @@
 							"    const endDate = pm.collectionVariables.get(\"endDate\");\r",
 							"\r",
 							"    const message = {\r",
-							"        channel: \"#analysis\",\r",
+							"        channel: \"#test\",\r",
 							"        attachments: [\r",
 							"            {\r",
 							"                mrkdwn_in: [\"text\"],\r",
