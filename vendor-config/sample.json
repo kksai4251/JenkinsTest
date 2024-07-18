@@ -1,0 +1,283 @@
+{
+	"info": {
+		"_postman_id": "dd50be0b-da7d-4e88-bdc5-ec9766dd2056",
+		"name": "Jenkins Job - Adobe Usage",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33710932"
+	},
+	"item": [
+		{
+			"name": "Adobe Token Generation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Save token\", function() {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.collectionVariables.set(\"authenticationtoken\", jsonData.access_token);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "openid,AdobeID,additional_info.projectedProductContext",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://ims-na1.adobelogin.com/ims/token/v3",
+					"protocol": "https",
+					"host": [
+						"ims-na1",
+						"adobelogin",
+						"com"
+					],
+					"path": [
+						"ims",
+						"token",
+						"v3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ServerCallUsage - Overall",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const today = new Date();\r",
+							"const daysAgo = 5;\r",
+							"const pastDate = new Date(today.setDate(today.getDate() - daysAgo));\r",
+							"const year = pastDate.getFullYear();\r",
+							"const month = String(pastDate.getMonth() + 1).padStart(2, '0');\r",
+							"const day = String(pastDate.getDate()).padStart(2, '0');\r",
+							"const formattedDate = `${year}-${month}-${day}`;\r",
+							"pm.collectionVariables.set('startDate', formattedDate);\r",
+							"pm.collectionVariables.set('endDate', formattedDate);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Extract the relevant data from the response\r",
+							"const responseJson = pm.response.json();\r",
+							"const total = responseJson.totals[4];\r",
+							"console.log(`Total: ${total}`);\r",
+							"\r",
+							"function formatDate(dateString) {\r",
+							"    const date = new Date(dateString);\r",
+							"    const options = { day: '2-digit', month: 'long', year: 'numeric' };\r",
+							"    return date.toLocaleDateString('en-US', options);\r",
+							"}\r",
+							"// Check if the total[4] exceeds 160,000,000\r",
+							"if (total > 6) {\r",
+							"    console.log(`Total exceeds 160 M: ${total}`);\r",
+							"    // Send an alert to Slack\r",
+							"\r",
+							"    const webhookUrl = pm.collectionVariables.get(\"slack_webhook_url\");\r",
+							"    const startDate = formatDate(pm.collectionVariables.get(\"startDate\"));\r",
+							"    const reportLink = \"https://experience.adobe.com/#/@ancestry-com/so:ancest1/analytics/spa/#/apps/admin/servercallusage\"\r",
+							"\r",
+							"    const message = {\r",
+							"        channel: \"postmantesting\",\r",
+							"        attachments: [\r",
+							"            {\r",
+							"                mrkdwn_in: [\"text\"],\r",
+							"                color: \"warning\",\r",
+							"                pretext: \"Adobe Server Call Usage Alert\",\r",
+							"                title: \":warning: Overage Alert: Server Call Usage Exceeded\",\r",
+							"                title_link: \"https://api.slack.com/\",\r",
+							"                text: \"The server call usage has exceeded the set threshold. Please investigate and take necessary actions.\",\r",
+							"                fields: [\r",
+							"                    {\r",
+							"                        title: \"Date\",\r",
+							"                        value: `${startDate}`,\r",
+							"                        short: false\r",
+							"                    },\r",
+							"                    {\r",
+							"                        title: \"Total Server Calls\",\r",
+							"                        value: total.toLocaleString(),\r",
+							"                        short: true\r",
+							"                    },\r",
+							"                    {\r",
+							"                        title: \"Threshold\",\r",
+							"                        value: \"160 M\",\r",
+							"                        short: true\r",
+							"                    },\r",
+							"                    {\r",
+							"                        title: \"Report Link\",\r",
+							"                        value: `<${reportLink}|View Report>`,\r",
+							"                        short: false\r",
+							"                    }\r",
+							"                ],\r",
+							"                footer: \"Server Call Monitoring System\",\r",
+							"                footer_icon: \"https://platform.slack-edge.com/img/default_application_icon.png\",\r",
+							"                ts: Math.floor(Date.now() / 1000)\r",
+							"            }\r",
+							"        ]\r",
+							"    };\r",
+							"\r",
+							"    console.log(`Sending request to Slack webhook: ${webhookUrl}`);\r",
+							"    pm.sendRequest({\r",
+							"        url: webhookUrl,\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'Content-Type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(message)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        if (err) {\r",
+							"            console.log(`Error: ${err}`);\r",
+							"        } else {\r",
+							"            console.log(`Response status: ${res.status}`);\r",
+							"            console.log(`Response body: ${res.text()}`);\r",
+							"        }\r",
+							"    });\r",
+							"} else {\r",
+							"    console.log(`Total[4] is within acceptable limits: ${total}`);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authenticationtoken}}",
+						"type": "text"
+					},
+					{
+						"key": "x-proxy-global-company-id",
+						"value": "{{company_id}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://appservice5.omniture.com/analytics/1.0/servercallusage/servercalls/reportsuites?expansion=reportSuiteName&pagination=true&page=0&limit=1000&startDate={{startDate}}&endDate={{endDate}}",
+					"protocol": "https",
+					"host": [
+						"appservice5",
+						"omniture",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"1.0",
+						"servercallusage",
+						"servercalls",
+						"reportsuites"
+					],
+					"query": [
+						{
+							"key": "expansion",
+							"value": "reportSuiteName"
+						},
+						{
+							"key": "pagination",
+							"value": "true"
+						},
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "1000"
+						},
+						{
+							"key": "startDate",
+							"value": "{{startDate}}"
+						},
+						{
+							"key": "endDate",
+							"value": "{{endDate}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "authToken",
+			"value": ""
+		},
+		{
+			"key": "authenticationtoken",
+			"value": ""
+		},
+		{
+			"key": "startDate",
+			"value": ""
+		},
+		{
+			"key": "endDate",
+			"value": ""
+		}
+	]
+}
