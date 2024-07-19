@@ -94,6 +94,7 @@
 							"console.log(pm.environment.get(\"authenticationtoken\"));\r",
 							"const responseJson = pm.response.json();\r",
 							"const threshold = pm.environment.get(\"threshold\");\r",
+							"console.log(threshold);\r",
 							"function formatDate(dateString) {\r",
 							"    const date = new Date(dateString);\r",
 							"    const options = { day: '2-digit', month: 'long', year: 'numeric' };\r",
