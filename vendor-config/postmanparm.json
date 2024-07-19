@@ -16,7 +16,7 @@
 		},
 		{
 			"key": "threshold",
-			"value": "60",
+			"value": "",
 			"type": "default",
 			"enabled": true
 		}
