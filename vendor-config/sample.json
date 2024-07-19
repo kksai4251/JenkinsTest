@@ -218,7 +218,7 @@
 					},
 					{
 						"key": "x-proxy-global-company-id",
-						"value": "{{company_id}}",
+						"value": "ancest1",
 						"type": "text"
 					}
 				],
