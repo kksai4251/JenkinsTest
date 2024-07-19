@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "dd50be0b-da7d-4e88-bdc5-ec9766dd2056",
-		"name": "Jenkins Job - Adobe Usage",
+		"_postman_id": "93a4ad20-3b26-4591-ae6d-067d27725763",
+		"name": "Jenkins Job - Adobe Usage Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "33710932"
 	},
@@ -88,34 +88,11 @@
 			"name": "ServerCallUsage - Overall",
 			"event": [
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"const today = new Date();\r",
-							"const daysAgo = 5;\r",
-							"const pastDate = new Date(today.setDate(today.getDate() - daysAgo));\r",
-							"const year = pastDate.getFullYear();\r",
-							"const month = String(pastDate.getMonth() + 1).padStart(2, '0');\r",
-							"const day = String(pastDate.getDate()).padStart(2, '0');\r",
-							"const formattedDate = `${year}-${month}-${day}`;\r",
-							"pm.collectionVariables.set('startDate', formattedDate);\r",
-							"pm.collectionVariables.set('endDate', formattedDate);\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"\r",
 							"const responseJson = pm.response.json();\r",
-							"const total = responseJson.totals[4];\r",
 							"const threshold = pm.environment.get(\"threshold\");\r",
-							"console.log(threshold);\r",
-							"\r",
 							"function formatDate(dateString) {\r",
 							"    const date = new Date(dateString);\r",
 							"    const options = { day: '2-digit', month: 'long', year: 'numeric' };\r",
@@ -132,50 +109,63 @@
 							"        return num.toString();\r",
 							"    }\r",
 							"}\r",
-							"if (total > threshold) {\r",
-							"    console.log(`Total exceeds ${formatNumber(threshold)} M: ${total}`);\r",
+							"const overallPrimaryCallsMetric = responseJson.metrics.find(metric => metric.metricId === 'overallprimarycalls');\r",
+							"const commitment = overallPrimaryCallsMetric.commitment;\r",
+							"const servercalldata = overallPrimaryCallsMetric.usage.find(usage => usage.id === 'currentperiodusage').data;\r",
+							"const lastDataEntry = servercalldata[servercalldata.length - 1];\r",
+							"const lastDate = lastDataEntry.date;\r",
+							"const lastUsage = lastDataEntry.usage;\r",
+							"const usagePercentage = (lastUsage / commitment) * 100;\r",
+							"\r",
+							"if (usagePercentage > threshold) {\r",
+							"    console.log(`Usage percentage exceeds the threshold: ${usagePercentage}%`);\r",
+							"    // Send an alert to Slack\r",
+							"\r",
 							"    const webhookUrl = pm.environment.get(\"slack_webhook_url\");\r",
-							"    const startDate = formatDate(pm.collectionVariables.get(\"startDate\"));\r",
-							"    const reportLink = \"https://experience.adobe.com/#/@ancestry-com/so:ancest1/analytics/spa/#/apps/admin/servercallusage\"\r",
 							"\r",
 							"    const message = {\r",
 							"        channel: \"#bt-alerts\",\r",
 							"        attachments: [\r",
 							"            {\r",
 							"                mrkdwn_in: [\"text\"],\r",
-							"                color: \"warning\",\r",
+							"                color: \"#ff0000\",\r",
 							"                pretext: \":warning: Adobe Server Call Usage Alert\",\r",
 							"                text: \"The server call usage has exceeded the set threshold. Please investigate and take necessary actions.\",\r",
 							"                fields: [\r",
 							"                    {\r",
-							"                        title: \"Date\",\r",
-							"                        value: `${startDate}`,\r",
-							"                        short: false\r",
+							"                        title: \"Commitment\",\r",
+							"                        value: formatNumber(commitment),\r",
+							"                        short: true\r",
 							"                    },\r",
 							"                    {\r",
-							"                        title: \"Total Server Calls\",\r",
-							"                        value: total.toLocaleString('en-US'),\r",
+							"                        title: \"Date\",\r",
+							"                        value: formatDate(lastDate),\r",
+							"                        short: true\r",
+							"                    },\r",
+							"                    {\r",
+							"                        title: \"Usage\",\r",
+							"                        value: lastUsage.toLocaleString('en-US'),\r",
+							"                        short: true\r",
+							"                    },\r",
+							"                    {\r",
+							"                        title: \"Usage Percentage\",\r",
+							"                        value: `${usagePercentage.toFixed(2)}%`,\r",
 							"                        short: true\r",
 							"                    },\r",
 							"                    {\r",
 							"                        title: \"Threshold\",\r",
-							"                        value: `${formatNumber(threshold)}`,\r",
+							"                        value: `${threshold}%`,\r",
 							"                        short: true\r",
-							"                    },\r",
-							"                    {\r",
-							"                        title: \"Report Link\",\r",
-							"                        value: `<${reportLink}|View Report>`,\r",
-							"                        short: false\r",
 							"                    }\r",
 							"                ],\r",
-							"                footer: \"Slack API\",\r",
+							"                footer: \"Server Call Monitoring\",\r",
 							"                footer_icon: \"https://platform.slack-edge.com/img/default_application_icon.png\",\r",
 							"                ts: Math.floor(Date.now() / 1000)\r",
 							"            }\r",
 							"        ]\r",
 							"    };\r",
 							"\r",
-							"    console.log(`Sending request to Slack webhook`);\r",
+							"    console.log(`Sending request to Slack webhook: ${webhookUrl}`);\r",
 							"    pm.sendRequest({\r",
 							"        url: webhookUrl,\r",
 							"        method: 'POST',\r",
@@ -195,7 +185,7 @@
 							"        }\r",
 							"    });\r",
 							"} else {\r",
-							"    console.log(`Total is within acceptable limits: ${total}`);\r",
+							"    console.log(`Usage percentage is within acceptable limits: ${usagePercentage}%`);\r",
 							"}\r",
 							""
 						],
@@ -204,6 +194,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [
@@ -219,12 +212,16 @@
 					},
 					{
 						"key": "x-proxy-global-company-id",
-						"value": "{{company_id}}",
+						"value": "ancest1",
 						"type": "text"
 					}
 				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
 				"url": {
-					"raw": "https://appservice5.omniture.com/analytics/1.0/servercallusage/servercalls/reportsuites?expansion=reportSuiteName&pagination=true&page=0&limit=1000&startDate={{startDate}}&endDate={{endDate}}",
+					"raw": "https://appservice5.omniture.com/analytics/1.0/servercallusage/servercalls",
 					"protocol": "https",
 					"host": [
 						"appservice5",
@@ -235,34 +232,7 @@
 						"analytics",
 						"1.0",
 						"servercallusage",
-						"servercalls",
-						"reportsuites"
-					],
-					"query": [
-						{
-							"key": "expansion",
-							"value": "reportSuiteName"
-						},
-						{
-							"key": "pagination",
-							"value": "true"
-						},
-						{
-							"key": "page",
-							"value": "0"
-						},
-						{
-							"key": "limit",
-							"value": "1000"
-						},
-						{
-							"key": "startDate",
-							"value": "{{startDate}}"
-						},
-						{
-							"key": "endDate",
-							"value": "{{endDate}}"
-						}
+						"servercalls"
 					]
 				}
 			},
