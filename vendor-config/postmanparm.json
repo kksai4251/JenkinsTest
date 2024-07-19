@@ -15,12 +15,6 @@
 			"enabled": true
 		},
 		{
-			"key": "company_id",
-			"value": "ancest1",
-			"type": "default",
-			"enabled": true
-		},
-		{
 			"key": "threshold",
 			"value": "",
 			"type": "default",
