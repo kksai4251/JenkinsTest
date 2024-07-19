@@ -15,7 +15,7 @@
 						"exec": [
 							"pm.test(\"Save token\", function() {\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.collectionVariables.set(\"authenticationtoken\", jsonData.access_token);\r",
+							"    pm.environment.set(\"authenticationtoken\", jsonData.access_token);\r",
 							"});\r",
 							""
 						],
@@ -91,6 +91,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
+							"console.log(pm.environment.get(\"authenticationtoken\"));\r",
 							"const responseJson = pm.response.json();\r",
 							"const threshold = pm.environment.get(\"threshold\");\r",
 							"function formatDate(dateString) {\r",
