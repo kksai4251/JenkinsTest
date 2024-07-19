@@ -155,7 +155,7 @@
 							"                    },\r",
 							"                    {\r",
 							"                        title: \"Threshold\",\r",
-							"                        value: `${threshold}`,\r",
+							"                        value: `${threshold} %`,\r",
 							"                        short: true\r",
 							"                    }\r",
 							"                ],\r",
