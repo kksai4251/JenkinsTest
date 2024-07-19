@@ -114,6 +114,7 @@
 							"const responseJson = pm.response.json();\r",
 							"const total = responseJson.totals[4];\r",
 							"const threshold = pm.environment.get(\"threshold\");\r",
+							"console.log(threshold);\r",
 							"\r",
 							"function formatDate(dateString) {\r",
 							"    const date = new Date(dateString);\r",
