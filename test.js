@@ -37,7 +37,7 @@ function insertData(auth) {
     ['John Doe', 28, 'Male', 'New York'],
     ['Jane Doe', 26, 'Female', 'San Francisco'],
     ['Sam Smith', 30, 'Male', 'Chicago'],
-    ['Lisa Ray', 29, 'Female', 'Boston'],
+    ['Lis Ray', 29, 'Female', 'Boston'],
   ];
 
   const resource = {
