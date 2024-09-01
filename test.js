@@ -34,10 +34,10 @@ function insertData(auth) {
 
   const values = [
     ['Name', 'Age', 'Gender', 'Location'],
-    ['John Doe', 28, 'Male', 'New York'],
-    ['Jane Doe', 26, 'Female', 'San Francisco'],
-    ['Sam Smith', 30, 'Male', 'Chicago'],
-    ['Lisa Ray', 29, 'Female', 'Boston'],
+    ['Jhn Doe', 28, 'Male', 'New York'],
+    ['Jne Doe', 26, 'Female', 'San Francisco'],
+    ['Sa Smith', 30, 'Male', 'Chicago'],
+    ['Lsa Ray', 29, 'Female', 'Boston'],
   ];
 
   const resource = {
